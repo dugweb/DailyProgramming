@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript" src="underscore.js"></script>
+
+
+</head>
+
+<body>
+
+<h1>Sum Them Digits</h1>
+<h3>Get the digit root of a number</h3>
+
+<p><em>From <a href="http://www.reddit.com/r/dailyprogrammer/comments/1berjh/040113_challenge_122_easy_sum_them_digits/">Easy Challenge - #122</a></em></p>
+<form>
+<input type="text" class="number"></input>
+
+<input type="submit" value="Hash" class="submit"></input>
+
+</form>
+
+<div class="output"></div>
+
+
+<script>
+(function() {
+
+	
+	var output = $(".output");
+	var inputBox  = $(".number");
+
+	function init() {
+		$(".submit").on("click", clickHandler);
+	}
+	
+	function clickHandler(event) {
+		event.preventDefault();
+		var value = inputBox.val();
+
+		output.html("");
+		
+		var result = hashNumber(value);
+		
+		
+		output.append(result);
+		
+	}
+
+	function hashNumber(number) {
+		var n = number;
+
+		if (isNaN(n)) {
+			output.html("That's not a number");
+			return;
+		}
+
+		while (n > 9) {
+			n = sumDigits(n);
+		}
+		return n;
+	}
+
+	function sumDigits(n) {
+		
+
+		var total = 0;
+
+		while (n > 0) {
+			total += n % 10;
+			n = Math.floor( n/10 );
+		}
+
+		return total;
+		
+		/*
+		// My stupid first attempt. Finding the length of digits by converting to string is lame. Use % 10
+		var total = 0;
+		var number = parseInt(n)
+		var nLength = intLength(number)
+
+		for (var i = 0; i < nLength; i++) {
+			total += parseInt(n[i]);
+		}
+
+		var totalLength = intLength(total);
+		console.log(totalLength);
+
+		for (var i = 0; i < 10; i++) {
+			console.log()
+		}
+
+
+		if (totalLength > 1) {
+			total = sumDigits(total);
+		}
+		
+
+		//console.log("Total: " + total);
+		return total;
+
+		*/
+
+	}
+
+	function intLength(n) {
+		/*
+		if (!Number(n)) {
+			n = parseInt(n);
+		}*/
+
+		var length = n.toString().length;
+		//console.log("Length of " + n + ": " + length);
+		return length;
+	}
+
+	init();
+})();
+
+</script>
+
+</body>
+</html>

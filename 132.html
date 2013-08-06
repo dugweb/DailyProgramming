@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="author" content="Doug" />
+    <title>Reddit Daily Programming</title>
+
+
+</head>
+
+<body>
+
+<h1>Greatest Common Divisor</h1>
+<h3>[07/08/13] Challenge #132 [Easy] Greatest Common Divisor</h3>
+
+<p>
+	<em>From <a href="http://www.reddit.com/r/dailyprogrammer/comments/1hvh6u/070813_challenge_132_easy_greatest_common_divisor/">Easy Challenge - #132</a></em>
+</p>
+
+<p>Some features</p>
+<ul>
+
+	<li>Calculates Greatest common denominator between last two numbers</li>
+	<li>Filters array so it only contains numbers</li>
+	<li>separate numbers by a space</li>
+	<li>Backspace will delete an entire number (instead of just one space at a time)</li>
+	<li>Requires you to push 'SPACE' after each number to make sure it's entered (including the last number)</li>
+</ul>
+
+<form>
+	<input type="text" class="number" id="numInput"></input>
+	<button id="calculate">Get Divisor</button>
+</form>
+
+<div class="output">
+	<h1 id="output"></h1>
+</div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+	divisor.init();
+});
+
+var $ = function(tagName) {
+	var el = document.getElementById(tagName);
+	return el;
+}
+
+var divisor = {
+
+	numbers : null, 
+	rawInput: null,
+	inputEl : null,
+	submitBtn: null,
+	output: null,
+
+	init: function() {
+		var el = $('numInput');
+		var self = this;
+		if (el !== null) {
+			var context = this;
+			el.addEventListener("keyup", function(e) {
+				context.keypressHandler(context, e);
+			}, false);
+		} else {
+			console.log("element doesn't exist");
+		}
+		
+		this.inputEl = el;
+		this.numbers = new Array();
+		this.output = $('output');
+		this.submitBtn = $('calculate');
+		this.submitBtn.addEventListener('click', function(e) {
+			e.preventDefault();
+			var num1 = self.numbers[self.numbers.length - 1];
+			var num2 = self.numbers[self.numbers.length - 2];
+
+			console.log("num1: " + num1 + " num2: " + num2);
+			if (num1 > 0 && num2 > 0) {
+				self.gcd(num1, num2);
+			}
+
+		}, false);
+	},
+
+	keypressHandler: function(context, e) {
+		var self = context;
+		self.rawInput = e.target.value;
+		
+		// console.log(e.keyCode);
+		
+		if (e.keyCode === 32) {
+			// if SPACEBAR is pressed
+			self.extractNumbers(self.rawInput);	
+		} else if (e.keyCode === 8) {
+			// if BACKSPACE is pressed
+			self.backspaceHandler(e);
+		}
+	},
+
+	extractNumbers: function(stringInput) {
+		var words = stringInput.split(" ");
+		words = words.filter(Number);
+		
+		if (words[words.length-1].valueOf() > 0) {
+			this.numbers.push( words[words.length-1]);
+		}
+
+		console.log(this.numbers);
+
+	},
+
+	backspaceHandler: function(e) {
+		// A little logic to delete an entire number (however many digits) when it's removed from the array.
+		// Very buggy
+		
+		var amountToErase = this.numbers[this.numbers.length - 1].length;
+		var newStringLength = this.inputEl.value.length - amountToErase;
+
+		this.inputEl.value = this.inputEl.value.substring(0, newStringLength);
+		this.numbers.pop();
+	},
+	// Euclid's algorithm
+	gcd: function(a, b) {
+		var remainder = a % b;
+		if (remainder === 0) {
+			this.output.innerHTML = b;
+		} else {
+			return this.gcd(b, remainder);
+		}
+	}
+}
+
+
+
+</script>
+
+</body>
+</html>

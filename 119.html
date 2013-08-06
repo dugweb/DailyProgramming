@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript" src="underscore.js"></script>
+
+
+</head>
+
+<body>
+
+<h1>Crappy Change Calculator</h1>
+<h3>Which took me forever to figure out</h3>
+
+<p><em>From <a href="http://www.reddit.com/r/dailyprogrammer/comments/17f3y2/012813_challenge_119_easy_change_calculator/">Easy Challenge - #119</a></em></p>
+<form>
+<input type="text" class="total_bill"></input>
+
+<input type="submit" value="Calculate" class="submit"></input>
+
+</form>
+
+<div class="output"></div>
+
+
+<script>
+(function() {
+
+	
+	var output = $(".output");
+	var inputBox  = $(".total_bill");
+
+	function init() {
+		$(".submit").on("click", submitHandler);
+	}
+	
+	function submitHandler(event) {
+		event.preventDefault();
+		var value = inputBox.val();
+		
+		if (isNaN(value)) {
+			output.html("That's not a number");
+			return;
+		}
+		output.html("");
+		
+		var result = calculateChange(value);
+		
+		_.each(result, function(element, index) {
+			output.append(index + " : " + element + "</br>");
+		});
+	}
+
+	function calculateChange(n) {
+
+		var change = {};
+		var coins = {
+			quarter : .25,
+			dime 	: .10,
+			nickel	: .05,
+			penny	: .01
+		}
+
+		var totalRemaining = n;
+		_.each(coins, function(element, index, list) {
+			
+			change[index] = Math.floor(totalRemaining/element);
+
+			if (totalRemaining <= 0) {
+				
+			} else {
+				
+				totalRemaining = totalRemaining - change[index] * coins[index];
+
+				totalRemaining = roundHth(totalRemaining);
+
+				console.log(totalRemaining + " current total");
+
+			}
+		});
+		return change;
+	}
+
+	function roundHth(n) {
+		return Math.round(n * 100) / 100;
+	}
+
+	init();
+})();
+
+</script>
+
+</body>
+</html>

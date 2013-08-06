@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="author" content="Doug" />
+    <title>Reddit Daily Programming</title>
+
+
+</head>
+
+<body>
+
+<h1>Foot-Traffic Analysis</h1>
+<h3>[07/15/13] Challenge #133 [Easy] Foot-Traffic Analysis</h3>
+
+<p>
+	<em>From <a href="http://www.reddit.com/r/dailyprogrammer/comments/1iambu/071513_challenge_133_easy_foottraffic_analysis/">Easy Challenge - #133</a></em>
+</p>
+
+<p>Some features</p>
+
+
+<form>
+	<textarea id="input"></textarea>
+	<button id="calculate">Show Traffic</button>
+</form>
+
+<div class="output">
+	<h1 id="output"></h1>
+</div>
+
+<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script>
+$(document).ready(function() {
+	foot.init();
+});
+
+var foot = {
+	recordLength: 0,
+	$calculate: $("#calculate"),
+	$textarea: $("#input"),
+	rawData: "",
+
+	init: function() {
+		this.$calculate.bind("click", this.calculateInput);
+	},
+
+	calculateInput: function(e) {
+		e.preventDefault();
+
+		// rawData = this.$textarea.value;
+		console.log(this);
+	}
+}
+
+
+</script>
+
+</body>
+</html>
