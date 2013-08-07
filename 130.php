@@ -4,16 +4,11 @@
 <a href="http://www.reddit.com/r/dailyprogrammer/comments/1iambu/071513_challenge_133_easy_foottraffic_analysis/">Link to challenge</a>
 
 <form id="input" action="130.php" method="post">
-	<textarea name="roomio">
-
-
-
-	</textarea>
+	<textarea name="roomio"><?php if (isset($_POST['roomio'])) {
+			echo $_POST['roomio'];
+		}?></textarea>
 	<button>Submit</button>
 </form>
-
-
-
 
 <?php 
 
@@ -52,74 +47,75 @@ class RoomIO {
 	}
 
 	public function getRooms() {
+		
 		return $this->rooms;
 	}
 
 	protected function analyzeTraffic() {
-		$inp = $this->input;
-		$rms = $this->rooms;
-		dd($inp);
+		$inp = $this->input; // Original input array
+		$rms = $this->rooms; // Output array
+		
 		// inp structure
-		$personid = 0;
-		$roomid = 1;
-		$inout = 2;
+		// person
+		// Room
+		// In or Out
+		// Minutes
+		$personidindex = 0;
+		$roomidindex = 1;
+		$inoutindex = 2;
 		$minutes = 3;
-
-		// rms structure
-		$totalminutes = 0;
-		$visitors = 1;
 
 		for ($i = 0; $i < count($inp); $i++) {
 
-			$rmid = $inp[$i][$roomid];
-			// if rms has the room in the array already
-			if (isset($rms[$rmid])) {
-				
-				if ($inp[$i][$inout] == 'I') {
-					$rms[$rmid][$totalminutes] -= $inp[$i][$minutes];
-				} else {
-					$rms[$rmid][$totalminutes] += $inp[$i][$minutes];
-					$rms[$rmid][$visitors] += 1;
-				}
+			// rms structure
+			$totalminutes = 0;
+			$visitors = 0;
+
+			$roomid = $inp[$i][$roomidindex];
+			
+			// if rms doesn't have the room in the array already
+			if (!isset($rms[$roomid])) {
+				$rms[$roomid] = array(
+					'id' => $roomid,
+					'visitors' => 0,
+					'minutes' => 0
+				);				
+			} 
+
+			if ($inp[$i][$inoutindex] == 'I') {
+					$rms[$roomid]['minutes'] -= $inp[$i][$minutes];
 			} else {
-
-				$newRoom = array(
-					'id' => $rmid,
-					'visitors' => 0
-				);
-
-				if ($inp[$i][$inout] == "I") {
-					$totalminutes += $inp[$i][$minutes];
-					array_push($newRoom, $totalminutes);
-				} else {
-					$totalminutes -= $inp[$i][$minutes];
-					array_push($newRoom, $totalminutes);
-				}
+					$rms[$roomid]['minutes'] += $inp[$i][$minutes];
+					$rms[$roomid]['visitors'] += 1;
 			}
-		}
 
+		}
 		$this->rooms = $rms;
 	}
 
-// person
-// Room
-// In or Out
-// Minutes
+	public function outputAnalysis() {
+		$output = array();
+		
+		foreach ($this->rooms as $key => $value) {
+			
+			$room = $this->rooms[$key]['id'];
+			$average = floor($this->rooms[$key]['minutes'] / $this->rooms[$key]['visitors']);
+			$visitors = $this->rooms[$key]['visitors'];
 
+			array_push($output, "Room $room, $average minute average visit, $visitors visitor(s) total");
+		} 
+
+		return $output;
+	}
 }
-
-
 
 if (isset($_POST['roomio'])) {
 	$fetch = new RoomIO($_POST['roomio']);
 
-	dd($fetch->getRooms());
+	dd($fetch->outputAnalysis());
 }
 
-
-
 ?>
-
 
 </body>
 </html>
