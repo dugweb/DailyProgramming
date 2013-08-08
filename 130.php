@@ -1,8 +1,8 @@
 <html>
 <body>
 
-<a href="http://www.reddit.com/r/dailyprogrammer/comments/1iambu/071513_challenge_133_easy_foottraffic_analysis/">Link to challenge</a>
-Sample Input
+<p><a href="http://www.reddit.com/r/dailyprogrammer/comments/1iambu/071513_challenge_133_easy_foottraffic_analysis/">Link to challenge</a></p>
+<p>Sample Input</p>
 <pre>
 36
 0 11 I 347
