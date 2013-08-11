@@ -43,6 +43,20 @@
 	}
 </style>
 <body>
+<!-- Sample inputs
+
+	"A words", where A is the number of words in the given document
+"B letters", where B is the number of letters in the given document
+"C symbols", where C is the number of non-letter and non-digit character, excluding white spaces, in the document
+"Top three most common words: D, E, F", where D, E, and F are the top three most common words
+"Top three most common letters: G, H, I", where G, H, and I are the top three most common letters
+"J is the most common first word of all paragraphs", where J is the most common word at the start of all paragraphs in the document (paragraph being defined as a block of text with an empty line above it) (*Optional bonus*)
+"Words only used once: K", where K is a comma-delimited list of all words only used once (*Optional bonus*)
+"Letters not used in the document: L", where L is a comma-delimited list of all alphabetic characters not in the document (*Optional bonus*)
+
+-->
+
+
 <p>Analyze text document</p>
 
 <div id="dropzone">
