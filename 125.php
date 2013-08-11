@@ -5,9 +5,6 @@
 		height: 100%;
 		font: 1em/1.2em normal normal Helvetica, Arial, Sans-serif;
 	}
-	p {
-		display: inline-block;
-	}
 	label {
 		width:130px;
 		text-align: right;
@@ -25,37 +22,30 @@
 	#dropzone {
 		background:#f8f8f8;
 		border:1px solid #eaeaea;
-		color: #eaeaea;
+		color: #ccc;
+		max-height: 200px;
 		text-align: center;
-		min-height:150px;
 		display: block;
-		font-size: 2em;
-		padding-top: 100px;
+		font: 1.4em/1.6em normal normal;
+		padding: 50px 25px;
+		overflow-y: scroll;
+		overflow-x: hidden;	
 	}
 
 	#output {
 		box-shadow: 0 0 0 1px teal inset;
 		background-color: #daedee;
 		float: left;
+		padding: 25px;
 	}
 	#output p {
 		padding: 10px 20px;
 	}
 </style>
 <body>
-<!-- Sample inputs
 
-	"A words", where A is the number of words in the given document
-"B letters", where B is the number of letters in the given document
-"C symbols", where C is the number of non-letter and non-digit character, excluding white spaces, in the document
-"Top three most common words: D, E, F", where D, E, and F are the top three most common words
-"Top three most common letters: G, H, I", where G, H, and I are the top three most common letters
-"J is the most common first word of all paragraphs", where J is the most common word at the start of all paragraphs in the document (paragraph being defined as a block of text with an empty line above it) (*Optional bonus*)
-"Words only used once: K", where K is a comma-delimited list of all words only used once (*Optional bonus*)
-"Letters not used in the document: L", where L is a comma-delimited list of all alphabetic characters not in the document (*Optional bonus*)
-
--->
-
+<p><a href="http://www.reddit.com/r/dailyprogrammer/comments/1e97ob/051313_challenge_125_easy_word_analytics/">Challenge Link</a></p>
+<p>Took the regex from <a href="http://www.reddit.com/r/dailyprogrammer/comments/1e97ob/051313_challenge_125_easy_word_analytics/c9y3fpu">Skeeto's</a> solution. I need to buckle down and learn the crap out of Regex.</p>
 
 <p>Analyze text document</p>
 
@@ -76,29 +66,105 @@
 	});
 
 	var app = {
+
+		fileData: "",
+		fileStats: {},
+
 		init: function() {
 			if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
 				console.log('Your browser sucks. Update please.');
 				return;
 			};
+
 			var dropzone = $('dropzone');
 			dropzone.addEventListener("dragover", this.dragHandler, false);
 			dropzone.addEventListener("drop", this.dropHandler, false);
 
 			this.dropzone = dropzone;
+			this.output = $('output');
 
 		},
 
 		dragHandler: function(e) {
+			e.stopPropagation();
 			e.preventDefault();
-			console.log("DRAG OVER");
+			
+			event.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy
 		},
 		dropHandler: function(e) {
 			e.preventDefault();
-			console.log("DROPPED");
-		}
+			e.stopPropagation();
 
+			var file = e.dataTransfer.files[0]; // Only one file allowed to be dropped
+
+			var reader = new FileReader();
+
+			reader.addEventListener('load', self.fileReadHandler, false);
+
+			reader.readAsText(file);
+		},
+		fileReadHandler: function(e) {
+			var data = e.currentTarget.result;
+			var stats = {};
+
+			stats["Word Count"] = self.wordCount(data);
+			stats["Letter Count"] = self.letterCount(data);
+			stats["Symbol Count"] = self.symbolCount(data);
+			stats["Most Common Words"] = self.commonWords(data);
+			stats["Most Common Letters"] = self.commonLetters(data);
+			stats["Most Common First Word"] = self.commonFirstWord(data);
+			stats["Unused Letters"] = self.unusedletters(data);
+
+			self.fileData = data.toLowerCase();
+			self.dropzone.innerHTML = data;
+			self.setStats(stats);
+		},
+
+		setStats: function(arr) {
+			this.fileStats = arr;
+			this.updateOutput();
+		},
+		updateOutput: function() {
+			
+			this.output.innerHTML = "";
+			
+			Object.keys(this.fileStats).forEach(function(key) {
+				this.output.innerHTML += key + ": " + self.fileStats[key] + "<br />";
+			});
+			
+		},
+
+		wordCount: function(data) {
+			var words = data.split(/[^\w]+/).filter(function(n) {
+				return n;
+			}); 
+			return words.length;
+		}, 
+		letterCount: function(data) {
+			var letters = data.replace(/[^a-zA-Z]+/g, '').split('');
+			
+			return letters.length;
+		},
+		symbolCount: function(data) {
+			var symbols = data.replace(/[\w\s]+/g, '').length;
+			
+			return symbols;
+		},
+		commonWords: function(data) {
+			return "todo";
+		},
+		commonLetters: function(data) {
+			// todo
+		},
+		commonFirstWord: function(data) {
+			// todo
+		},
+		unusedletters: function(data) {
+			// todo
+		}
 	}
+
+	var self = app;
 
 
 </script>
