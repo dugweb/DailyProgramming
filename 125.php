@@ -45,7 +45,7 @@
 <body>
 
 <p><a href="http://www.reddit.com/r/dailyprogrammer/comments/1e97ob/051313_challenge_125_easy_word_analytics/">Challenge Link</a></p>
-<p>Took the regex from <a href="http://www.reddit.com/r/dailyprogrammer/comments/1e97ob/051313_challenge_125_easy_word_analytics/c9y3fpu">Skeeto's</a> solution. I need to buckle down and learn the crap out of Regex.</p>
+<p>Took the regex from <a href="http://www.reddit.com/r/dailyprogrammer/comments/1e97ob/051313_challenge_125_easy_word_analytics/c9y3fpu">Skeeto&lsquo;s</a> solution. I need to buckle down and learn the crap out of Regex.</p>
 
 <p>Analyze text document</p>
 
