@@ -31,7 +31,7 @@
 <canvas id="canvas"></canvas>
 <div id="optionspane" class="widget">
 	<h4>Options</h4>
-	<input id="points" type="checkbox" value="displayPoints" />
+	<input id="points" type="checkbox" value="displayPoints" checked />
 	<label for="points">Display points</label>
 
 	<input id="triangles" type="checkbox" value="displayTriangles" />
@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", init);
 
 function init() {
 	window.can = new canvasController(document.getElementById('canvas'));
-	window.optionPane = new optionsController($('#options'));
+	window.optionPane = new optionsController($('#optionspane'));
 	window.infoPane = new infoController($('#infopane'));
 }
 
@@ -70,15 +70,27 @@ var optionsController = function(el) {
 	|  Public Methods & properties
 	|
 	|  --------------------------------------- */
-	var self = this;
+
 	/* ---------------------------------------
 	|
 	|  Private Methods 
 	|
 	|  --------------------------------------- */
+	var self = this, $el, $displayPoints, $displayTriangles;
 
 	init = function(el) {
-		self.optionsEl = el;
+		$el = el;
+		$displayPoints = $('#points', $el);
+		$displayTriangles = $("#triangles", $el);
+
+		$displayPoints.click(function(e) { clickHandler(e) });
+		$displayTriangles.click(function(e) { clickHandler(e) } );
+	}
+
+	clickHandler = function(e) {
+		if (e.currentTarget === $displayPoints[0]) {
+			can.setPointsDisplay(e.currentTarget.checked);
+		}
 	}
 
 	init(el);
@@ -200,7 +212,19 @@ var canvasController = function(el) {
 	|
 	|  --------------------------------------- */
 
-	this.options = {};
+	this.setPointsDisplay = function(bool) {
+		pointsDisplay = bool;
+		updateCanvas();
+
+		console.log("PointsDisplay: " + pointsDisplay);
+	}
+
+	this.setTrianglesDisplay = function(bool) {
+		triangleDisplay = bool;
+		updateCanvas();
+
+		console.log("TriangleDisplay: " + triangleDisplay);
+	}
 
 	this.getCircles = function() {
 		return circles;
@@ -220,6 +244,8 @@ var canvasController = function(el) {
 		curCircle,
 		circDistance,
 		points = {},
+		pointsDisplay = true,
+		triangleDisplay = false,
 		self = this;
 
 
@@ -240,6 +266,8 @@ var canvasController = function(el) {
 	resizeHandler = function() {
 		canvasEl.width = window.innerWidth;
 		canvasEl.height = window.innerHeight;
+
+		updateCanvas();
 	}
 
 	downHandler = function(e) {
@@ -281,35 +309,52 @@ var canvasController = function(el) {
 		canvasContext.beginPath();
 
 
-		for (var i = circles.length - 2; i < circles.length; i++) {
-			if (circles[i] === undefined) { continue; }
-			canvasContext.moveTo(circles[i].mouseBegin.x + circles[i].radius, circles[i].mouseBegin.y)
-			canvasContext.arc(circles[i].mouseBegin.x, circles[i].mouseBegin.y, circles[i].radius, 0, 2*Math.PI);
-			if (points.p0 !== undefined) {
-				drawPoint(points.p0);
-			}
-			if (points.p1 !== undefined) {
-				drawPoint(points.p1);
-			}
-			if (points.p2 !== undefined) {
-				drawPoint(points.p2);
-			}
+		if (circles !== undefined) {
+			for (var i = circles.length - 2; i < circles.length; i++) {
+				if (circles[i] === undefined) { continue; }
 				
+				drawCircle(circles[i]);
+			}
+
+			if (pointsDisplay) { // if points option is set to True
+				for (var k in points) {
+					if (points.hasOwnProperty(k)) {
+						drawPoint(points[k]);
+					}
+				}
+			}	
 		}
+		
 		canvasContext.stroke();
 		updateInfoPane();
 	}
 
 	updateInfoPane = function() {
+		
+		// This is a hack, but I'm too lazy.
+		// The options area object needs to be called infoPane
+
 		if (window.infoPane !== undefined) {
-			var count = circles.length - 1;
-			infoPane.setArea(circles[count].getArea(), count);
+			var count = circles.length;
+			infoPane.setArea(circles[count - 1].getArea(), count);
 		}
 	}
 
 	drawPoint = function(point) {
 		canvasContext.moveTo(point.x, point.y);
 		canvasContext.arc(point.x, point.y, 2, 0, 2*Math.PI);
+	}
+
+	drawCircle = function(circleObj) {
+		var c = circleObj;
+		canvasContext.moveTo(c.mouseBegin.x + c.radius, c.mouseBegin.y);
+		canvasContext.arc(c.mouseBegin.x, c.mouseBegin.y, c.radius, 0, 2*Math.PI);
+	}
+
+	drawAllPoints = function() {
+		if (window.optionsPane !== undefined) {
+
+		}
 	}
 
 	/* ========= Circle calculating functions ======== */
