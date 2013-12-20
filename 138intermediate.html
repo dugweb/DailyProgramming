@@ -6,22 +6,131 @@
 	padding:0;
 	margin:0;
 }
+
+#optionspane {
+	bottom: 0;
+	right: 0;
+}
+#infopane {
+	bottom: 0;
+	left:0;
+	pointer-events:none;
+}
+.widget {
+	position: absolute;
+	background:rgba(0,0,0,.05);
+	border:1px solid #ccc;
+	padding:20px;
+	margin: 20px;
+}
+
 </style>
 </head>
 <body>
 
 <canvas id="canvas"></canvas>
+<div id="optionspane" class="widget">
+	<h4>Options</h4>
+	<input id="points" type="checkbox" value="displayPoints" />
+	<label for="points">Display points</label>
 
+	<input id="triangles" type="checkbox" value="displayTriangles" />
+	<label for="triangles">Display Triangles</label>
+</div>
+<div id="infopane" class="widget">
+	<h4>Area</h4>
+	<table>
+	<tr>
+		<td>Circle 1</td><td>Circle 2</td><td>Combined Area</td>
+	</tr>
+	<tr>
+		<td id="circle1Display">123</td><td id="circle2Display">456</td><td id="combinedDisplay">100</td>
+	</tr>
+
+	</table>
+
+</div>
+<script type="text/javascript" src="jquery.js"></script>
 <script>
 
 document.addEventListener("DOMContentLoaded", init);
 
-function $(id) {
-	return document.getElementById(id);
-}
 
 function init() {
-	var can = new canvasController($('canvas'));
+	window.can = new canvasController(document.getElementById('canvas'));
+	window.optionPane = new optionsController($('#options'));
+	window.infoPane = new infoController($('#infopane'));
+}
+
+
+var optionsController = function(el) {
+
+	/* ---------------------------------------
+	|
+	|  Public Methods & properties
+	|
+	|  --------------------------------------- */
+	var self = this;
+	/* ---------------------------------------
+	|
+	|  Private Methods 
+	|
+	|  --------------------------------------- */
+
+	init = function(el) {
+		self.optionsEl = el;
+	}
+
+	init(el);
+
+}
+
+var infoController = function(el) {
+
+	/* ---------------------------------------
+	|
+	|  Public Methods & properties
+	|
+	|  --------------------------------------- */
+	
+	this.setArea = function(a, c) {
+		// a = area
+		// c = count of circle array length so we can alternate which info box to update
+
+		if (c % 2 > 0) {
+			$circle1.html(a + "px");
+		} else {
+			$circle2.html(a + "px");
+		}
+	}
+
+	this.setCombinedArea = function(a) {
+		
+	}
+
+	/* ---------------------------------------
+	|
+	|  Private Methods 
+	|
+	|  --------------------------------------- */
+
+	var self = this, $el, $circle1, $circle2, $combined;
+
+	var init = function(el) {
+		$el = el;
+
+		$circle1 = $('#circle1Display', $el);
+		$circle2 = $('#circle2Display', $el);
+		$combined = $('#combinedDisplay', $el);
+
+		$circle1.html('0');
+		$circle2.html('0');
+		$combined.html('0');
+
+	}
+
+	init(el);
+
 }
 
 
@@ -30,7 +139,7 @@ var circle = function(centerPoint) {
 	/* ---------------------------------------
 	|
 	|  Public Methods & properties
-	|  Create and store drawn circle info
+	|  Create and store drawn circle info - Sort of a Circle Model
 	|
 	|  --------------------------------------- */
 	
@@ -38,8 +147,18 @@ var circle = function(centerPoint) {
 		if (self.mouseBegin) {
 			self.mouseEnd = mousePoint;
 			self.radius = calculateRadius(self.mouseBegin, self.mouseEnd);
-			self.area = calculateArea(self.radius);
+			area = calculateArea(self.radius);
 		}
+	}
+
+	this.getArea = function() {
+		
+		if (area === undefined) {
+			return 0;
+		} else {
+			return area;	
+		}
+
 		
 	}
 	
@@ -49,7 +168,7 @@ var circle = function(centerPoint) {
 	|
 	|  --------------------------------------- */
 
-	var self = this;
+	var self = this, area;
 
 	init = function(centerPoint) {
 		self.mouseBegin = centerPoint;
@@ -65,7 +184,7 @@ var circle = function(centerPoint) {
 	}
 
 	calculateArea = function(r) {
-		return Math.PI * Math.pow(r, 2);
+		return Math.floor(Math.PI * Math.pow(r, 2));
 	}
 
 	init(centerPoint);
@@ -80,6 +199,8 @@ var canvasController = function(el) {
 	|  element.
 	|
 	|  --------------------------------------- */
+
+	this.options = {};
 
 	this.getCircles = function() {
 		return circles;
@@ -100,6 +221,7 @@ var canvasController = function(el) {
 		circDistance,
 		points = {},
 		self = this;
+
 
 	init = function(canvasElement) {
 		canvasEl = canvasElement;
@@ -175,6 +297,14 @@ var canvasController = function(el) {
 				
 		}
 		canvasContext.stroke();
+		updateInfoPane();
+	}
+
+	updateInfoPane = function() {
+		if (window.infoPane !== undefined) {
+			var count = circles.length - 1;
+			infoPane.setArea(circles[count].getArea(), count);
+		}
 	}
 
 	drawPoint = function(point) {
