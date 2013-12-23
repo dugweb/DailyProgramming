@@ -1,0 +1,92 @@
+<html>
+<head>
+</head>
+<body>
+	
+	<h1>Challenge #144 [Easy] Nuts &amp; Bolts</h1>
+	<p><a href="http://www.reddit.com/r/dailyprogrammer/comments/1sob1e/121113_challenge_144_easy_nuts_bolts/">Challenge Link</a></p>
+
+	<textarea id="input" rows="10">4
+CarriageBolt 45
+Eyebolt 50
+Washer 120
+Rivet 10
+CarriageBolt 45
+Eyebolt 45
+Washer 140
+Rivet 10</textarea>
+<button id='submit'>Submit</button>
+
+<div id="output"></div>
+
+</body>
+<script>
+
+$ = function(id) {
+	return document.getElementById(id);
+}
+
+document.addEventListener("DOMContentLoaded", init);
+
+var init = function() {
+	window.textInput = $('input');
+	window.output = $('output');
+
+	$('submit').addEventListener('click', priceComparison);
+}
+
+priceComparison = function(e) {
+	var items = textInput.innerHTML.split("\n");
+	var itemCount = parseInt(items.shift());
+
+	var changedItems = [];
+
+	for (var i = 0; i < itemCount; i++) {
+		var before = items[i].split(" ");
+		var after  = items[i + itemCount].split(" ");
+
+		if (before[1] !== after[1]) {
+			var changed = [];
+			changed.push(before[0]);
+			changed.push(before[1] - after[1]);
+
+			changedItems.push(changed);
+		}
+
+	} 
+
+	output.innerHTML = arrToString(changedItems);
+
+	return changedItems;
+
+}
+
+function arrToString(arr) {
+	
+	var output = "";
+
+	for (var i = 0; i < arr.length; i++) {
+		output += "<p>"
+
+
+		if (Object.prototype.toString.call(arr[i]) === '[object Array]') {
+			
+			for (var j = 0; j < arr[i].length; j++) {
+				output += arr[i][j] + " ";
+			}	
+			output += "</p>";
+
+		} else {
+			output += arr[i] + "</p>";	
+		}	
+		
+	}
+
+	return output;
+}
+
+init();
+
+
+</script>
+</html>

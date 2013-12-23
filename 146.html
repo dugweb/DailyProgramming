@@ -1,0 +1,44 @@
+<html>
+	<head>
+	</head>
+<body>
+
+<h1>Easy Challenge 146: Perimeter of Regular Polygon</h1>
+
+<p>polyperim function takes two parameters. (Number of Sides, length of radius). It happens in the console.
+<p>Example input</p>
+
+<pre>
+	polyperim(5, 3.7) 		// 21.748054334821507
+</pre>
+
+<script>
+
+document.addEventListener('DOMContentLoaded', init);
+
+function init() {
+	// window.judist = new polyperim();
+}
+
+var polyperim = function(s, r) {
+
+	var self = this, 
+		sides = s,
+		radius = r,
+		sidelength, 
+		sideangle;
+
+	function toRadians(degrees) {
+		return Math.PI/180 * degrees;
+	}
+
+	sideangle = 180 / sides;
+	sidelength = radius * Math.sin(toRadians(sideangle)) * 2;
+
+	return sidelength * sides;
+}
+
+</script>
+
+</body>
+</html>

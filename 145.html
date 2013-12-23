@@ -1,0 +1,60 @@
+<html>
+<head>
+	<style>
+		#output {
+
+		}
+	</style>
+</head>
+<body>
+
+	<h1>Challenge #145 - Tree Generation</h1>
+	<p><a href="http://www.reddit.com/r/dailyprogrammer/comments/1t0r09/121613_challenge_145_easy_tree_generation/">Challenge Link</a>. Use it in the console. Sample input:</p>
+		<pre>tree(13, "=", "+")</pre>
+<p>tree(baseWidth, trunkChar, treeChar)</p>
+
+	<pre id="output"></pre>
+
+<script>
+	function tree(base, trunk, tree) {
+
+		var output = document.getElementById('output');			
+		if (base % 2 !== 0) {
+			base += 1;
+		}
+
+		var text = "";
+		
+
+		for (var i = 1; i <= base; i+=2) {
+			
+			var spaces = (base - i) / 2;
+
+			text = addChars(text, spaces, " ");
+			text = addChars(text, i, tree);
+			text += "\n";
+
+		}
+
+		text = addChars(text, base/2 - 1, " ");
+		text = addChars(text, 3, trunk);
+	
+		output.innerHTML = text;
+		
+		return output;
+	}
+
+	function addChars(s, n, ascii) {
+		var theString = s;
+		var theCount = n;
+
+		for (var i = 0; i < theCount; i++) {
+			theString += ascii;
+		}
+		
+		return theString;
+	}
+
+</script>
+</body>
+</html>
