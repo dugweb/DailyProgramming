@@ -78,7 +78,7 @@ var optionsController = function(el) {
 	|  --------------------------------------- */
 	var self = this, $el, $displayPoints, $displayTriangles;
 
-	init = function(el) {
+	var init = function(el) {
 		$el = el;
 		$displayPoints = $('#points', $el);
 		$displayTriangles = $("#triangles", $el);
@@ -87,7 +87,7 @@ var optionsController = function(el) {
 		$displayTriangles.click(function(e) { clickHandler(e) } );
 	}
 
-	clickHandler = function(e) {
+	var clickHandler = function(e) {
 		if (e.currentTarget === $displayPoints[0]) {
 			can.setPointsDisplay(e.currentTarget.checked);
 		}
@@ -182,11 +182,11 @@ var circle = function(centerPoint) {
 
 	var self = this, area;
 
-	init = function(centerPoint) {
+	var init = function(centerPoint) {
 		self.mouseBegin = centerPoint;
 	}
 
-	calculateRadius = function(beginPoint, endPoint) {
+	var calculateRadius = function(beginPoint, endPoint) {
 		var x1 = beginPoint.x, x2 = endPoint.x, y1 = beginPoint.y, y2 = endPoint.y, radius;
 
 		
@@ -195,7 +195,7 @@ var circle = function(centerPoint) {
 		return radius;
 	}
 
-	calculateArea = function(r) {
+	var calculateArea = function(r) {
 		return Math.floor(Math.PI * Math.pow(r, 2));
 	}
 
@@ -249,7 +249,7 @@ var canvasController = function(el) {
 		self = this;
 
 
-	init = function(canvasElement) {
+	var init = function(canvasElement) {
 		canvasEl = canvasElement;
 		canvasContext = canvasEl.getContext('2d');
 
@@ -263,65 +263,60 @@ var canvasController = function(el) {
 		circles = [];
 	}
 
-	resizeHandler = function() {
+	var resizeHandler = function() {
 		canvasEl.width = window.innerWidth;
 		canvasEl.height = window.innerHeight;
 
 		updateCanvas();
 	}
 
-	downHandler = function(e) {
+	var downHandler = function(e) {
 		circles.push(new circle({x: e.clientX, y: e.clientY}));
 		curCircle = circles[circles.length - 1];
 
 		canvasEl.addEventListener("mousemove", moveHandler);
 
 		if (lastCircle) {
-			distance = calcDistance(lastCircle, curCircle);
+			circDistance = calcDistance(lastCircle, curCircle);
 		}
 
 		updateCanvas();
 		
 	}
 
-	moveHandler = function(e) {
+	var moveHandler = function(e) {
 		curCircle.setMouseEnd({x: e.clientX, y: e.clientY});
 
 		if (lastCircle) {
-			if (doCirclesIntersect(lastCircle, curCircle, distance)) {
-
+			if (doCirclesIntersect(lastCircle, curCircle)) {
+				findIntersectingPoints(lastCircle, curCircle, circDistance);
 			}
 		}
-		
-		
 
 		updateCanvas();
 	}
 
-	upHandler = function(e) {
+	var upHandler = function(e) {
 		lastCircle = curCircle;
 
 		canvasEl.removeEventListener('mousemove', moveHandler);
 	}
 
-	updateCanvas = function() {
+	var updateCanvas = function() {
 		canvasContext.clearRect(0,0, canvasEl.width, canvasEl.height);
 		canvasContext.beginPath();
 
 
 		if (circles !== undefined) {
 			for (var i = circles.length - 2; i < circles.length; i++) {
+				
 				if (circles[i] === undefined) { continue; }
 				
 				drawCircle(circles[i]);
 			}
 
 			if (pointsDisplay) { // if points option is set to True
-				for (var k in points) {
-					if (points.hasOwnProperty(k)) {
-						drawPoint(points[k]);
-					}
-				}
+				drawAllPoints();
 			}	
 		}
 		
@@ -329,7 +324,7 @@ var canvasController = function(el) {
 		updateInfoPane();
 	}
 
-	updateInfoPane = function() {
+	var updateInfoPane = function() {
 		
 		// This is a hack, but I'm too lazy.
 		// The options area object needs to be called infoPane
@@ -340,40 +335,39 @@ var canvasController = function(el) {
 		}
 	}
 
-	drawPoint = function(point) {
+	var drawPoint = function(point) {
 		canvasContext.moveTo(point.x, point.y);
 		canvasContext.arc(point.x, point.y, 2, 0, 2*Math.PI);
 	}
 
-	drawCircle = function(circleObj) {
+	var drawCircle = function(circleObj) {
 		var c = circleObj;
 		canvasContext.moveTo(c.mouseBegin.x + c.radius, c.mouseBegin.y);
 		canvasContext.arc(c.mouseBegin.x, c.mouseBegin.y, c.radius, 0, 2*Math.PI);
 	}
 
-	drawAllPoints = function() {
-		if (window.optionsPane !== undefined) {
-
+	var drawAllPoints = function() {
+		for (var k in points) {
+			if (points.hasOwnProperty(k)) {
+				drawPoint(points[k]);
+			}
 		}
 	}
 
 	/* ========= Circle calculating functions ======== */
 
-	calcDistance = function(p1, p2) {
+	var calcDistance = function(p1, p2) {
 		d = Math.sqrt(Math.pow(p2.mouseBegin.x - p1.mouseBegin.x, 2) + Math.pow(p2.mouseBegin.y - p1.mouseBegin.y, 2));
 		return d;
 	}
 
-	doCirclesIntersect = function(c1, c2, d) {
+	var doCirclesIntersect = function(c1, c2) {
 		var result = false;
-		
+		var d = calcDistance(c1, c2);
 		if (d === 0 && c1.radius === c2.radius) {
 			result = false; // Same circle, infinite intersections
 		} else if (c1.radius + c2.radius > d && d > Math.abs(c1.radius - c2.radius)) {
 			result = true;
-			
-			findIntersectingPoints(c1, c2, d);
-
 		}
 
 		return result;
@@ -382,7 +376,7 @@ var canvasController = function(el) {
 	// Great tutorial on how to find intersecting points of circles
 	// http://paulbourke.net/geometry/circlesphere/
 
-	findIntersectingPoints = function(c1, c2, d) {
+	var findIntersectingPoints = function(c1, c2, d) {
 		var a = (Math.pow(c1.radius, 2) - Math.pow(c2.radius, 2) + Math.pow(d, 2)) / (d * 2);
 		var h = Math.sqrt(Math.pow(c1.radius, 2) - Math.pow(a, 2));
 
@@ -406,7 +400,6 @@ var canvasController = function(el) {
 			"p1" : p1,
 			"p2" : p2
 		}
-
 
 	}
 
