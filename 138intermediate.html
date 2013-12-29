@@ -91,6 +91,9 @@ var optionsController = function(el) {
 		if (e.currentTarget === $displayPoints[0]) {
 			can.setPointsDisplay(e.currentTarget.checked);
 		}
+		if (e.currentTarget === $displayTriangles[0]) {
+			can.setTrianglesDisplay(e.currentTarget.checked);
+		}
 	}
 
 	init(el);
@@ -180,7 +183,7 @@ var circle = function(centerPoint) {
 	|
 	|  --------------------------------------- */
 
-	var self = this, area;
+	var self = this, area, mouseBegin;
 
 	var init = function(centerPoint) {
 		self.mouseBegin = centerPoint;
@@ -216,14 +219,14 @@ var canvasController = function(el) {
 		pointsDisplay = bool;
 		updateCanvas();
 
-		console.log("PointsDisplay: " + pointsDisplay);
+		
 	}
 
 	this.setTrianglesDisplay = function(bool) {
 		triangleDisplay = bool;
 		updateCanvas();
 
-		console.log("TriangleDisplay: " + triangleDisplay);
+		
 	}
 
 	this.getCircles = function() {
@@ -246,7 +249,12 @@ var canvasController = function(el) {
 		points = {},
 		pointsDisplay = true,
 		triangleDisplay = false,
-		self = this;
+		self = this, 
+		colors = {
+			"circles" : "#000000",
+			"points" : "#ff0000",
+			"triangles" : "#cccccc"
+		}
 
 
 	var init = function(canvasElement) {
@@ -304,24 +312,32 @@ var canvasController = function(el) {
 
 	var updateCanvas = function() {
 		canvasContext.clearRect(0,0, canvasEl.width, canvasEl.height);
-		canvasContext.beginPath();
+		
 
 
+		// all canvas stuff to do with Circles requiring them to exist
 		if (circles !== undefined) {
 			for (var i = circles.length - 2; i < circles.length; i++) {
 				
 				if (circles[i] === undefined) { continue; }
 				
-				drawCircle(circles[i]);
-			}
+				if (triangleDisplay) {
 
-			if (pointsDisplay) { // if points option is set to True
-				drawAllPoints();
-			}	
+					drawTriangles(circles[i]);
+				}
+
+				drawCircle(circles[i]);
+
+				if (pointsDisplay) { // if points option is set to True
+					drawAllPoints();
+				}	
+			
+				updateInfoPane();	
+			}
 		}
 		
-		canvasContext.stroke();
-		updateInfoPane();
+		
+		
 	}
 
 	var updateInfoPane = function() {
@@ -337,21 +353,54 @@ var canvasController = function(el) {
 
 	var drawPoint = function(point) {
 		canvasContext.moveTo(point.x, point.y);
-		canvasContext.arc(point.x, point.y, 2, 0, 2*Math.PI);
+		canvasContext.arc(point.x, point.y, 3, 0, 2*Math.PI);
 	}
 
 	var drawCircle = function(circleObj) {
 		var c = circleObj;
+
+		canvasContext.beginPath();
+		canvasContext.strokeStyle = colors.circles;
+
 		canvasContext.moveTo(c.mouseBegin.x + c.radius, c.mouseBegin.y);
 		canvasContext.arc(c.mouseBegin.x, c.mouseBegin.y, c.radius, 0, 2*Math.PI);
+
+		canvasContext.stroke();
+		canvasContext.closePath();
 	}
 
 	var drawAllPoints = function() {
+		canvasContext.beginPath();
+		canvasContext.fillStyle = colors.points;
+
 		for (var k in points) {
 			if (points.hasOwnProperty(k)) {
 				drawPoint(points[k]);
 			}
 		}
+
+		canvasContext.fill();
+		canvasContext.closePath();
+
+	}
+
+	var drawTriangles = function(circleObj) {
+		var c = circleObj;
+
+		canvasContext.beginPath();
+		canvasContext.strokeStyle = colors.triangles;
+		
+		canvasContext.moveTo(c.mouseBegin.x, c.mouseBegin.y);
+		canvasContext.lineTo(points.p1.x, points.p1.y);
+		canvasContext.lineTo(points.p2.x, points.p2.y);
+		canvasContext.lineTo(c.mouseBegin.x, c.mouseBegin.y);
+		canvasContext.lineTo(points.p0.x, points.p0.y);
+
+		drawPoint(c.mouseBegin);
+		
+		canvasContext.stroke();
+		canvasContext.closePath();
+		
 	}
 
 	/* ========= Circle calculating functions ======== */
@@ -402,6 +451,8 @@ var canvasController = function(el) {
 		}
 
 	}
+
+	
 
 	init(el);
 }
