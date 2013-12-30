@@ -90,6 +90,8 @@ var optionsController = function(el) {
 	var clickHandler = function(e) {
 		if (e.currentTarget === $displayPoints[0]) {
 			can.setPointsDisplay(e.currentTarget.checked);
+		} else if (e.currentTarget === $displayTriangles[0]) {
+			can.setTrianglesDisplay(e.currentTarget.checked);
 		}
 	}
 
@@ -117,7 +119,7 @@ var infoController = function(el) {
 	}
 
 	this.setCombinedArea = function(a) {
-		
+		$combined.html(a + "px");
 	}
 
 	/* ---------------------------------------
@@ -317,7 +319,12 @@ var canvasController = function(el) {
 
 			if (pointsDisplay) { // if points option is set to True
 				drawAllPoints();
-			}	
+			}
+
+			if (triangleDisplay) {
+				console.log('displaying triangles');
+			}
+
 		}
 		
 		canvasContext.stroke();
@@ -352,6 +359,10 @@ var canvasController = function(el) {
 				drawPoint(points[k]);
 			}
 		}
+	}
+
+	var drawTriangles = function() {
+		
 	}
 
 	/* ========= Circle calculating functions ======== */
