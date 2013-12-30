@@ -31,11 +31,21 @@
 <canvas id="canvas"></canvas>
 <div id="optionspane" class="widget">
 	<h4>Options</h4>
-	<input id="points" type="checkbox" value="displayPoints" checked />
-	<label for="points">Display points</label>
-
-	<input id="triangles" type="checkbox" value="displayTriangles" />
-	<label for="triangles">Display Triangles</label>
+	<p>
+		<input id="points" type="checkbox" value="displayPoints" checked />
+		<label for="points">Display points</label>
+	</p>
+	<p>
+		<input id="triangles" type="checkbox" value="displayTriangles" />
+		<label for="triangles">Display Triangles</label>
+	</p>
+	<p>
+		<select id="unittype" name="units">
+			<option value="inches" selected>Inches</option>
+			<option value="pixels">Pixels</option>
+		</select>
+		<label for="unittype">Result Type (not working)</label>
+	</p>
 </div>
 <div id="infopane" class="widget">
 	<h4>Area</h4>
@@ -76,15 +86,17 @@ var optionsController = function(el) {
 	|  Private Methods 
 	|
 	|  --------------------------------------- */
-	var self = this, $el, $displayPoints, $displayTriangles;
+	var self = this, $el, $displayPoints, $displayTriangles, $unitType;
 
 	var init = function(el) {
 		$el = el;
 		$displayPoints = $('#points', $el);
 		$displayTriangles = $("#triangles", $el);
+		$unitType = $('#unittype', $el);
 
 		$displayPoints.click(function(e) { clickHandler(e) });
 		$displayTriangles.click(function(e) { clickHandler(e) } );
+		$unitType.change(function(e) { changeHandler(e) } );
 	}
 
 	var clickHandler = function(e) {
@@ -94,6 +106,11 @@ var optionsController = function(el) {
 		if (e.currentTarget === $displayTriangles[0]) {
 			can.setTrianglesDisplay(e.currentTarget.checked);
 		}
+	}
+
+	var changeHandler = function(e) {
+		console.log(e.currentTarget.value);
+		can.setUnitType(e.currentTarget.value);
 	}
 
 	init(el);
@@ -113,14 +130,18 @@ var infoController = function(el) {
 		// c = count of circle array length so we can alternate which info box to update
 
 		if (c % 2 > 0) {
-			$circle1.html(a + "px");
+			$circle1.html(formatOutput(a));
 		} else {
-			$circle2.html(a + "px");
+			$circle2.html(formatOutput(a));
 		}
 	}
 
 	this.setCombinedArea = function(a) {
-		
+		$combined.html(formatOutput(a));
+	}
+
+	this.setUnitType = function(type) {
+		unittype = type;
 	}
 
 	/* ---------------------------------------
@@ -129,7 +150,7 @@ var infoController = function(el) {
 	|
 	|  --------------------------------------- */
 
-	var self = this, $el, $circle1, $circle2, $combined;
+	var self = this, $el, $circle1, $circle2, $combined, unittype;
 
 	var init = function(el) {
 		$el = el;
@@ -142,6 +163,19 @@ var infoController = function(el) {
 		$circle2.html('0');
 		$combined.html('0');
 
+	}
+
+	var formatOutput = function(val) {
+		var output;
+		
+		if (unittype === "inches") {
+			output = Math.round(Math.sqrt(val / 90), 2);
+			output += '"';
+		} else {
+			output = val;
+			output += "px";
+		}
+		return output;
 	}
 
 	init(el);
@@ -229,6 +263,11 @@ var canvasController = function(el) {
 		
 	}
 
+	this.setUnitType = function(type) {
+		units = type;
+		updateCanvas();
+	}
+
 	this.getCircles = function() {
 		return circles;
 	}
@@ -254,7 +293,10 @@ var canvasController = function(el) {
 			"circles" : "#000000",
 			"points" : "#ff0000",
 			"triangles" : "#cccccc"
-		}
+		},
+		units = "inches",
+		deg2rad = Math.PI/180,
+		rad2deg = 180/Math.PI;
 
 
 	var init = function(canvasElement) {
@@ -285,7 +327,7 @@ var canvasController = function(el) {
 		canvasEl.addEventListener("mousemove", moveHandler);
 
 		if (lastCircle) {
-			circDistance = calcDistance(lastCircle, curCircle);
+			circDistance = calcDistance(lastCircle.mouseBegin, curCircle.mouseBegin);
 		}
 
 		updateCanvas();
@@ -330,24 +372,33 @@ var canvasController = function(el) {
 
 				if (pointsDisplay) { // if points option is set to True
 					drawAllPoints();
-				}	
-			
-				updateInfoPane();	
+				}
+
+
+				updateInfoPane(circles[i]);	
 			}
+
+			infoPane.setCombinedArea(combinedArea());
 		}
 		
 		
 		
 	}
 
-	var updateInfoPane = function() {
+	var updateInfoPane = function(circ) {
 		
 		// This is a hack, but I'm too lazy.
 		// The options area object needs to be called infoPane
 
 		if (window.infoPane !== undefined) {
+		
 			var count = circles.length;
-			infoPane.setArea(circles[count - 1].getArea(), count);
+			// infoPane.setUnitType(units);
+
+			
+
+			infoPane.setArea(circ.getArea(), count);
+				
 		}
 	}
 
@@ -387,32 +438,33 @@ var canvasController = function(el) {
 	var drawTriangles = function(circleObj) {
 		var c = circleObj;
 
-		canvasContext.beginPath();
-		canvasContext.strokeStyle = colors.triangles;
-		
-		canvasContext.moveTo(c.mouseBegin.x, c.mouseBegin.y);
-		canvasContext.lineTo(points.p1.x, points.p1.y);
-		canvasContext.lineTo(points.p2.x, points.p2.y);
-		canvasContext.lineTo(c.mouseBegin.x, c.mouseBegin.y);
-		canvasContext.lineTo(points.p0.x, points.p0.y);
+		if (points.hasOwnProperty("p0")) {
+			canvasContext.beginPath();
+			canvasContext.strokeStyle = colors.triangles;
+			
+			canvasContext.moveTo(c.mouseBegin.x, c.mouseBegin.y);
+			canvasContext.lineTo(points.p1.x, points.p1.y);
+			canvasContext.lineTo(points.p2.x, points.p2.y);
+			canvasContext.lineTo(c.mouseBegin.x, c.mouseBegin.y);
+			canvasContext.lineTo(points.p0.x, points.p0.y);
 
-		drawPoint(c.mouseBegin);
-		
-		canvasContext.stroke();
-		canvasContext.closePath();
-		
+			drawPoint(c.mouseBegin);
+			
+			canvasContext.stroke();
+			canvasContext.closePath();
+		}
 	}
 
 	/* ========= Circle calculating functions ======== */
 
 	var calcDistance = function(p1, p2) {
-		d = Math.sqrt(Math.pow(p2.mouseBegin.x - p1.mouseBegin.x, 2) + Math.pow(p2.mouseBegin.y - p1.mouseBegin.y, 2));
+		d = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
 		return d;
 	}
 
 	var doCirclesIntersect = function(c1, c2) {
 		var result = false;
-		var d = calcDistance(c1, c2);
+		var d = calcDistance(c1.mouseBegin, c2.mouseBegin);
 		if (d === 0 && c1.radius === c2.radius) {
 			result = false; // Same circle, infinite intersections
 		} else if (c1.radius + c2.radius > d && d > Math.abs(c1.radius - c2.radius)) {
@@ -420,6 +472,51 @@ var canvasController = function(el) {
 		}
 
 		return result;
+	}
+
+	var combinedArea = function() {
+		
+		var overlap = 0;
+
+		if (points.hasOwnProperty("p0")) {
+						
+			var triC1 = {
+				b: calcDistance(points.p0, curCircle.mouseBegin),
+				h: calcDistance(points.p1, points.p0),
+			}
+			
+			var triC2 = {
+				b: calcDistance(points.p0, lastCircle.mouseBegin),
+				h: triC1.h,
+			}
+
+			triC1.area = triC1.b * triC1.h;
+			triC1.innerang = Math.atan2(triC1.h, triC1.b) *  2;
+			triC1.sectorArea = triC1.innerang / 2 * Math.pow(curCircle.radius, 2);
+			triC1.leftover = triC1.sectorArea - triC1.area;
+
+			triC2.area = triC2.b * triC2.h;
+			triC2.innerang = Math.atan2(triC2.h, triC2.b) *  2;
+			triC2.sectorArea = triC2.innerang / 2 * Math.pow(lastCircle.radius, 2);
+			triC2.leftover = triC2.sectorArea - triC2.area;
+
+			overlap = Math.floor(triC2.leftover + triC1.leftover);
+			console.log(overlap)
+			return curCircle.getArea() + lastCircle.getArea() - overlap;
+		}
+
+
+		
+		
+	}
+
+
+	var innerAngle = function(triangle) {
+		
+	}
+
+	var arcArea = function(circ) {
+
 	}
 
 	// Great tutorial on how to find intersecting points of circles
