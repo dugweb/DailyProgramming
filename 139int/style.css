@@ -1,0 +1,40 @@
+* {
+	padding:0;
+	margin: 0;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+}
+body {
+	font:normal normal 16px/18px Sans-Serif;
+}
+
+#touchpad {
+	position: absolute;
+	left: 0;
+	right: 0;
+	margin: auto;
+	max-width:700px;
+	border:1px solid #333;
+	padding: 3px;
+}
+
+#display {
+	border:1px solid #333;
+	min-height: 8em;
+	overflow: scroll;
+}
+#buttons {
+	display:table;
+	width: 100%;
+}
+
+.phonebtn {
+	display: table-cell;
+	padding: 10px;
+	width:33.33333%;
+	border:1px solid #fff;	
+	background: #ccc;
+}
+.phonebtn:active {
+	background:#555;
+}
